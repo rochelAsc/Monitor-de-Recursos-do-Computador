@@ -1,0 +1,2 @@
+# Biblioteca obrigatória
+psutil>=5.9.0
