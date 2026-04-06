@@ -1,2 +1,2 @@
 # Biblioteca obrigatória
-psutil>=5.9.0
+psutil>=7.2.2
