@@ -1,4 +1,5 @@
 def converter_bytes(tamanho_em_bytes: int) -> str:
+
     unidades = ["B", "KB", "MB", "GB", "TB"]
     tamanho = float(tamanho_em_bytes)
     indice = 0
@@ -10,6 +11,7 @@ def converter_bytes(tamanho_em_bytes: int) -> str:
     return f"{tamanho:.2f} {unidades[indice]}"
 
 def formatar_tempo(segundos: float) -> str:
+
     total_segundos = int(segundos)
     horas = total_segundos // 3600
     minutos = (total_segundos % 3600) // 60
