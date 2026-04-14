@@ -1,7 +1,6 @@
 import psutil
 from typing import Any, Optional
 
-# A alteração ocorre na linha abaixo
 def obter_dados_energia() -> Optional[dict[str, Any]]:
 
     bateria = psutil.sensors_battery()
