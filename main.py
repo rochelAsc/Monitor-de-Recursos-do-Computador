@@ -1,3 +1,6 @@
+import os
+import time
+from typing import Callable, Any
 from coleta.cpu import obter_dados_cpu
 from coleta.memoria import obter_dados_memoria
 from coleta.energia import obter_dados_energia
@@ -12,10 +15,27 @@ from visao.terminal import (exibir_cpu, exibir_memoria, exibir_energia,
                             exibir_sistema, exibir_disco, exibir_rede,
                             exibir_top_processos_memoria, exibir_top_processos_cpu)
 
+def monitorar_em_tempo_real(funcao_coleta: Callable[..., Any], funcao_exibir: Callable[..., Any], intervalo: int = 1) -> None:
+    try:
+        while True:
+            os.system('cls' if os.name == 'nt' else 'clear')
+            
+            dados = funcao_coleta()
+            funcao_exibir(dados)
+            
+            print(f"\n[ Atualizando a cada {intervalo}s. Pressione Ctrl+C para voltar ao menu principal ]")
+            
+            time.sleep(intervalo)
+            
+    except KeyboardInterrupt:
+        print("\nVoltando ao menu principal...")
+        time.sleep(1)
+        os.system('cls' if os.name == 'nt' else 'clear')
+
 def exibir_menu() -> None:
-    print("\n" + "="*40)
-    print("  FERRAMENTA DE DIAGNÓSTICO DO SO  ")
-    print("="*40)
+    print("\n" + "="*45)
+    print("  FERRAMENTA DE DIAGNÓSTICO DO SO (AO VIVO)  ")
+    print("="*45)
     print("1. Consultar Processador (CPU)")
     print("2. Consultar Memória RAM")
     print("3. Consultar Energia/Bateria")
@@ -27,7 +47,7 @@ def exibir_menu() -> None:
     print("9. Top 5 Processos (Mais Memória)")
     print("10. Top 5 Processos (Mais CPU)")
     print("0. Sair do Programa")
-    print("="*40)
+    print("="*45)
 
 def main() -> None:
     while True:
@@ -35,51 +55,41 @@ def main() -> None:
         opcao = input("Escolha uma opção numérica: ")
         
         if opcao == '1':
-            dados = obter_dados_cpu()
-            exibir_cpu(dados)
+            monitorar_em_tempo_real(obter_dados_cpu, exibir_cpu)
             
         elif opcao == '2':
-            dados = obter_dados_memoria()
-            exibir_memoria(dados)
+            monitorar_em_tempo_real(obter_dados_memoria, exibir_memoria)
             
         elif opcao == '3':
-            dados = obter_dados_energia()
-            exibir_energia(dados)
+            monitorar_em_tempo_real(obter_dados_energia, exibir_energia)
             
         elif opcao == '4':
-            dados = listar_processos()
-            exibir_lista_processos(dados)
+            # a lista completa pode "piscar" na tela se for muito longa
+            monitorar_em_tempo_real(listar_processos, exibir_lista_processos)
             
         elif opcao == '5':
             entrada_pid = input("Digite o número do PID do processo: ")
             try:
-                # Garante que o usuário digitou um número antes de chamar a coleta
                 pid_int = int(entrada_pid)
-                dados = detalhar_processo(pid_int)
-                exibir_detalhes_processo(dados)
+                monitorar_em_tempo_real(lambda: detalhar_processo(pid_int), exibir_detalhes_processo)
             except ValueError:
-                # Captura erros de digitação (ex: letras em vez de números)
                 print("\n[!] Erro de Entrada: O PID deve ser composto apenas por números inteiros.")
+                time.sleep(2)
                 
         elif opcao == '6':
-            dados = obter_dados_sistema()
-            exibir_sistema(dados)
+            monitorar_em_tempo_real(obter_dados_sistema, exibir_sistema)
             
         elif opcao == '7':
-            dados = obter_dados_disco()
-            exibir_disco(dados)
+            monitorar_em_tempo_real(obter_dados_disco, exibir_disco)
             
         elif opcao == '8':
-            dados = obter_dados_rede()
-            exibir_rede(dados)
+            monitorar_em_tempo_real(obter_dados_rede, exibir_rede)
             
         elif opcao == '9':
-            dados = obter_top_processos_memoria()
-            exibir_top_processos_memoria(dados)
+            monitorar_em_tempo_real(obter_top_processos_memoria, exibir_top_processos_memoria)
             
         elif opcao == '10':
-            dados = obter_top_processos_cpu()
-            exibir_top_processos_cpu(dados)
+            monitorar_em_tempo_real(obter_top_processos_cpu, exibir_top_processos_cpu)
             
         elif opcao == '0':
             print("\nEncerrando a ferramenta de diagnóstico. Até logo!")
@@ -87,6 +97,7 @@ def main() -> None:
             
         else:
             print("\n[!] Opção inválida. Por favor, escolha um número de 0 a 10.")
+            time.sleep(1)
 
 if __name__ == "__main__":
     main()
