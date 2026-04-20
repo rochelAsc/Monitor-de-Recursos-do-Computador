@@ -13,7 +13,6 @@ def listar_processos() -> list[dict[str, Any]]:
                 "nome": str(p.info['name'])
             })
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            # Se o processo sumir ou não tivermos permissão só para ler o nome, ignoramos
             pass
             
     return processos
@@ -21,14 +20,12 @@ def listar_processos() -> list[dict[str, Any]]:
 def detalhar_processo(pid: int) -> Optional[dict[str, Any]]:
 
     try:
-        # Instancia o processo alvo
         p = psutil.Process(pid)
         
-        # Coleta os dados exigidos pelo trabalho
         nome = p.name()
         status = p.status()
         memoria_bytes = p.memory_info().rss # rss = Resident Set Size (memória real em uso)
-        uso_cpu = p.cpu_percent(interval=0.1) # Pausa rápida de 0.1s para medir a CPU do processo
+        uso_cpu = p.cpu_percent(interval=0.1) # 0.1s para medir a CPU do processo
         
         # Tempo atual - Tempo de criação = Tempo de execução em segundos
         tempo_execucao = time.time() - p.create_time()
@@ -46,3 +43,47 @@ def detalhar_processo(pid: int) -> Optional[dict[str, Any]]:
     # Tratamento de erro
     except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
         return None
+
+def obter_top_processos_memoria(limite: int = 5) -> list[dict[str, Any]]:
+
+    processos: list[dict[str, Any]] = []
+    
+    # PID, Nome e Memória
+    for p in psutil.process_iter(['pid', 'name', 'memory_info']):
+        try:
+            memoria_info = p.info.get('memory_info')
+            rss = memoria_info.rss if memoria_info else 0 
+            
+            processos.append({
+                "pid": int(p.info['pid']),
+                "nome": str(p.info['name']),
+                "memoria": int(rss)
+            })
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+            
+    processos_ordenados = sorted(processos, key=lambda x: x['memoria'], reverse=True)
+    return processos_ordenados[:limite]
+
+
+def obter_top_processos_cpu(limite: int = 5) -> list[dict[str, Any]]:
+
+    processos: list[dict[str, Any]] = []
+    
+    # PID, Nome e CPU Percentual
+    for p in psutil.process_iter(['pid', 'name', 'cpu_percent']):
+        try:
+
+            cpu_uso = p.info.get('cpu_percent')
+            valor_cpu = cpu_uso if cpu_uso is not None else 0.0
+            
+            processos.append({
+                "pid": int(p.info['pid']),
+                "nome": str(p.info['name']),
+                "cpu": float(valor_cpu)
+            })
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+            
+    processos_ordenados = sorted(processos, key=lambda x: x['cpu'], reverse=True)
+    return processos_ordenados[:limite]
