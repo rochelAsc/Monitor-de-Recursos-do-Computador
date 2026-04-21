@@ -1,6 +1,10 @@
 # Monitor de Recursos do Computador
 
-Uma ferramenta de diagnóstico de sistema operacional em linha de comando (CLI), desenvolvida em Python. Este projeto monitora e exibe dados essenciais do hardware e dos processos do sistema de forma organizada e em tempo real.
+Para facilitar, o programa tem um executavel em dist -> main.exe
+
+Basta dar duplo click para rodar
+
+Ferramenta de diagnóstico de sistema operacional em linha de comando (CLI), desenvolvida em Python. Este projeto monitora e exibe dados essenciais do hardware e dos processos do sistema de forma organizada e em tempo real.
 
 Para que o programa funcione corretamente, é necessário que a máquina do avaliador possua:
 1. **Python instalado** (versão 3.9 ou superior).
